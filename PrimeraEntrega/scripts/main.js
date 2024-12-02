@@ -28,16 +28,20 @@ function compra() {
     // Vamos a mostra el resultado final en el html
   }
   mostrarCarrito(carrito, total);
-  }
+}
 
-  function mostrarCarrito(carrito, total) {
+function mostrarCarrito(carrito, total) {
     // vamos a crear una lista con los productos seleccionados
+    alert(JSON.stringify(carrito, null, 2))
+    let resumen = "";
+
     carrito.forEach((producto, index) => {
-      resumen += `<li>${producto.nombre}: $${producto.precio}</li>`;
+        resumen += `<li>${producto.nombre}: $${producto.precio}</li>`;
     });
-
-    resumen += `</ul><h4>Total: $${total}</h4>`;
-
+    
+    
+    resumen += `<h4>Total: $${total}</h4>`;
+    
     // Insertar el resumen en el HTML
     const resultadoDiv = document.getElementById("resultado");
     resultadoDiv.innerHTML = resumen;
