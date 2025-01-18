@@ -27,7 +27,7 @@ const products = [
 let cart = JSON.parse(localStorage.getItem('cart')) || [];
 // This is for display local storage on console just to see what is on the cart
 console.log(localStorage.getItem('cart'));
-// DOM Elements
+
 const productList = document.getElementById('product-list');
 const cartItems = document.getElementById('cart-items');
 const totalAmount = document.getElementById('totalAmount');
@@ -36,34 +36,43 @@ const totalAmount = document.getElementById('totalAmount');
 function displayProducts() {
   productList.innerHTML = products.map(product => {
       const { id, name, price, stock, description } = product;
-      const stockStatus = stock > 0 ? 'In Stock' : 'Out of Stock';
       return `
           <div class="product-card">
               <h3>${name}</h3>
               <p>${description}</p>
               <p>Price: $${price}</p>
-              <p>${stockStatus}</p>
-              <button onclick="addToCart(${id})">Add to Cart </button>
+              <p>Stock ${stock}</p>
+              ${stock > 0 ? 
+                `<button onclick="addToCart(${id})">Add to Cart</button>` : 
+                `<p style="color: red;">Out of Stock</p>`
+            }
           </div>
-      `;
+            `;
   }).join('');
 }
 
 // now we are goiin to create the function to add to cart
 
-function addToCart(productId){
-    const product = products.find(p => p.id === productId);
-    const existingItem = cart.find(item => item.id === productId);
+function addToCart(productId) {
+    const productIndex = products.findIndex(p => p.id === productId);
 
-    if(existingItem){
-        cart = cart.map(item =>  item.id === productId ? {...item , quantity: item.quantity + 1} : item);
+    if (products[productIndex].stock > 0) {
+        products[productIndex].stock -= 1;
+        const existingItem = cart.find(item => item.id === productId);
+        if (existingItem) {
+            cart = cart.map(item => 
+                item.id === productId 
+                    ? { ...item, quantity: item.quantity + 1 }
+                    : item
+            );
+        } else {
+            const product = products[productIndex];
+            cart = [...cart, { ...product, quantity: 1 }];
+        }
+        localStorage.setItem('cart', JSON.stringify(cart));
+        updateCartDisplay();
+        displayProducts();  
     }
-    else{
-        cart = [...cart, {...product, quantity: 1}];
-    }
-
-    localStorage.setItem('cart', JSON.stringify(cart));
-    updateCartDisplay();
 }
 
 
@@ -82,7 +91,8 @@ function updateCartDisplay() {
   }).join('');
 
   const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  totalAmount.textContent = total.toFixed(2);
+//   this is the total amount of the cart and its called in the html
+  totalAmount.textContent = total.toFixed(2);  
 }
 
 // Remove from Cart
@@ -95,5 +105,5 @@ function removeFromCart(productId) {
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
   displayProducts();
-//   updateCartDisplay();
+  updateCartDisplay();
 });
